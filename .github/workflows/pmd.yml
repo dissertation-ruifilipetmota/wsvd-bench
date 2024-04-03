@@ -72,5 +72,5 @@ jobs:
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }} 
         with:
           args: 
-            -Dsonar.projectKey=${{ secrets.TEASTORE_SONAR_PROJECT_KEY }}  
-            -Dsonar.java.binaries="
+            -Dsonar.projectKey=${{ secrets.WSVD_SONAR_PROJECT_KEY }}  
+            -Dsonar.java.binaries="target"
