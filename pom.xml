@@ -54,6 +54,12 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>4.8.3.2-SNAPSHOT</version>
+                <configuration>
+                    <sarifOutput>true</sarifOutput>
+                    <sarifOutputFilename>spotbugs-report.sarif</sarifOutputFilename>
+                    <!-- Optional: Specify a custom directory for SARIF output -->
+                    <sarifOutputDirectory>${project.build.directory}</sarifOutputDirectory>
+                </configuration>
               </plugin>
 
             <plugin>
