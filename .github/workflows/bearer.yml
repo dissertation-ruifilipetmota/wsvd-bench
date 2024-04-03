@@ -26,34 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-       # Install missing maven dependencies
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '8'
-          distribution: 'temurin'
-
-
-      - name: List jar Directories
-        run: |
-            find . -type d -name "install" | grep -v "/\." | sed 's|^./||'
-            
-      - name: Setup Maven Action
-        uses: s4u/setup-maven-action@v1.2.1
-        with:
-          java-version: 8
-
-      - name: Install Dependencies
-        run: |
-          chmod +x ./install/install.sh
-          mvn install:install-file -DgroupId=wsdbench-component -DartifactId=wsdbench-component -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-component.jar
-          mvn install:install-file -DgroupId=wsdbench-distributable-objects -DartifactId=wsdbench-distributable-objects -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-distributable-objects.jar
-          mvn install:install-file -DgroupId=wsdbench-loader -DartifactId=wsdbench-loader -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-loader.jar
-          mvn install:install-file -DgroupId=oracle -DartifactId=ojdbc14 -Dversion=1.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true         
-         # ./install/install.sh
-
-
       # step 2
       - name: Semgrep Scan
         run: |
@@ -67,33 +39,4 @@ jobs:
         with:
           sarif_file: semgrep-report.sarif
     
-      - name: Build project
-        run: mvn clean install -Dmaven.test.skip=true
 
-      - name: List Target Directories
-        run: |
-            find . -type d -name "target" | grep -v "/\." | sed 's|^./||'
-      - name: List Source Directories
-        run: |
-          find . -type d -name "src" | grep -v "/\." | sed 's|^./||'
-          
-      - name: Run PMD
-        id: pmd
-        uses: pmd/pmd-github-action@v2
-        with:
-          rulesets: 'rulesets/java/quickstart.xml'
-          analyzeModifiedFilesOnly: false
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: pmd-report.sarif
-
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }} 
-        with:
-          args: 
-            -Dsonar.projectKey=${{ secrets.WSVD_SONAR_PROJECT_KEY }}  
-            -Dsonar.java.binaries="target"
