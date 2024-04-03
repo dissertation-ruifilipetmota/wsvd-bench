@@ -63,8 +63,14 @@ jobs:
       - name: List files and folders
         run: ls -alh target
 
-      - name: Cat spotbugs output
-        run: cat target/spotbugsXml.xml
+      - name: Convert SpotBugs XML to SARIF
+        run: |
+          wget https://github.com/spotbugs/spotbugs/releases/download/4.8.0/spotbugs-4.8.0.tgz
+          tar -xzf spotbugs-4.8.0.tgz
+          java -jar spotbugs-4.8.0/lib/spotbugs.jar -textui -effort:max -xml:withMessages -output target/spotbugsXml.xml
+          wget https://github.com/spotbugs/spotbugs-to-sarif/releases/download/1.0.0/spotbugs-to-sarif-1.0.0.jar
+          java -jar spotbugs-to-sarif-1.0.0.jar -i target/spotbugsXml.xml -o spotbugs-report.sarif
+          rm -rf spotbugs-4.8.0 spotbugs-4.8.0.tgz spotbugs-to-sarif-1.0.0.jar
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
