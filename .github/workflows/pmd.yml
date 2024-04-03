@@ -63,6 +63,9 @@ jobs:
       - name: List files and folders
         run: ls -alh target
 
+      - name: Cat spotbugs output
+        run: cat target/spotbugsXml.xml
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
