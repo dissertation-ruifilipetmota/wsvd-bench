@@ -33,7 +33,7 @@ jobs:
 
       - name: List jar Directories
         run: |
-            find . -type d -name "wsdbench-component.jar" | grep -v "/\." | sed 's|^./||'
+            find . -type d -name "install" | grep -v "/\." | sed 's|^./||'
             
       - name: Install Dependencies
         run: |
