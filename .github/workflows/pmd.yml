@@ -33,6 +33,11 @@ jobs:
         run: |
           chmod +x ./install/install.sh
           ./install/install.sh
+
+      - name: List jar Directories
+        run: |
+            find . -type d -name "wsdbench-component.jar" | grep -v "/\." | sed 's|^./||'
+    
       - name: Build project
         run: mvn clean install -Dmaven.test.skip=true
 
