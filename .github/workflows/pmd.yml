@@ -59,11 +59,15 @@ jobs:
 
       - name: Run SpotBugs
         run: mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
-  
+
+      - name: List files and folders
+        run: ls -alh
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: spotbugs-report.sarif
+
 
 
 
