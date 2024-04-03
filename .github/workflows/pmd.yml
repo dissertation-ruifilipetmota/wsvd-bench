@@ -20,8 +20,6 @@ jobs:
     permissions:
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep
 
     steps:
       - uses: actions/checkout@v3
@@ -47,20 +45,6 @@ jobs:
           mvn install:install-file -DgroupId=wsdbench-loader -DartifactId=wsdbench-loader -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-loader.jar
           mvn install:install-file -DgroupId=oracle -DartifactId=ojdbc14 -Dversion=1.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true         
          # ./install/install.sh
-
-
-      # step 2
-      - name: Semgrep Scan
-        run: |
-          semgrep \
-            --sarif --output semgrep-report.sarif \
-            --metrics=off \
-            --config="p/default"
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: semgrep-report.sarif
     
       - name: Build project
         run: mvn clean install -Dmaven.test.skip=true

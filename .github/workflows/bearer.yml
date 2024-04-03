@@ -2,38 +2,96 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-#
-# This workflow file requires a free account on Bearer.com to manage findings, notifications and more.
-# See https://docs.bearer.com/guides/bearer-cloud/
-name: Bearer
+
+name: semgrep
 
 on:
+  push:
+    branches: [ "master" ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: ["master"]
-
+    branches: [ "master" ]
+  workflow_dispatch:
+    
 permissions:
-  contents: read # for actions/checkout to fetch code
-  security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-  actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+  contents: read
 
 jobs:
-  bearer:
+  pmd-code-scan:
+    permissions:
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+
     steps:
-      # Checkout project source
       - uses: actions/checkout@v3
-      # Scan code using Bearer CLI
-      - name: Run Report
-        id: report
-        uses: bearer/bearer-action@828eeb928ce2f4a7ca5ed57fb8b59508cb8c79bc
+
+       # Install missing maven dependencies
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
         with:
-          api-key: ${{ secrets.BEARER_TOKEN }}
-          format: sarif
-          output: results.sarif
-          exit-code: 0
-      # Upload SARIF file generated in previous step
+          java-version: '8'
+          distribution: 'temurin'
+
+
+      - name: List jar Directories
+        run: |
+            find . -type d -name "install" | grep -v "/\." | sed 's|^./||'
+            
+    #  - name: Setup Maven Action
+    #    uses: s4u/setup-maven-action@< version >
+
+      - name: Install Dependencies
+        run: |
+          chmod +x ./install/install.sh
+          mvn install:install-file -DgroupId=wsdbench-component -DartifactId=wsdbench-component -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-component.jar
+          mvn install:install-file -DgroupId=wsdbench-distributable-objects -DartifactId=wsdbench-distributable-objects -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-distributable-objects.jar
+          mvn install:install-file -DgroupId=wsdbench-loader -DartifactId=wsdbench-loader -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -Dfile=wsdbench-loader.jar
+          mvn install:install-file -DgroupId=oracle -DartifactId=ojdbc14 -Dversion=1.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true         
+         # ./install/install.sh
+
+
+      # step 2
+      - name: Semgrep Scan
+        run: |
+          semgrep \
+            --sarif --output semgrep-report.sarif \
+            --metrics=off \
+            --config="p/default"
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: results.sarif
+          sarif_file: semgrep-report.sarif
+    
+      - name: Build project
+        run: mvn clean install -Dmaven.test.skip=true
+
+      - name: List Target Directories
+        run: |
+            find . -type d -name "target" | grep -v "/\." | sed 's|^./||'
+      - name: List Source Directories
+        run: |
+          find . -type d -name "src" | grep -v "/\." | sed 's|^./||'
+          
+      - name: Run PMD
+        id: pmd
+        uses: pmd/pmd-github-action@v2
+        with:
+          rulesets: 'rulesets/java/quickstart.xml'
+          analyzeModifiedFilesOnly: false
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: pmd-report.sarif
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }} 
+        with:
+          args: 
+            -Dsonar.projectKey=${{ secrets.WSVD_SONAR_PROJECT_KEY }}  
+            -Dsonar.java.binaries="target"
