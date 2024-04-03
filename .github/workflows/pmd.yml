@@ -30,9 +30,18 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
+      - name: Build project
+        run: mvn clean install -Dmaven.test.skip=true
+
+      - name: List Target Directories
+        run: |
+            find . -type d -name "target" | grep -v "/\." | sed 's|^./||'
+      - name: List Source Directories
+        run: |
+          find . -type d -name "src" | grep -v "/\." | sed 's|^./||'
       - name: Run PMD
         id: pmd
-        uses: pmd/pmd-github-action@967a81f8b657c87f7c3e96b62301cb1a48efef29
+        uses: pmd/pmd-github-action@v2
         with:
           rulesets: 'rulesets/java/quickstart.xml'
           sourcePath: 'src/main/java'
@@ -41,3 +50,13 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: pmd-report.sarif
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }} 
+        with:
+          args: 
+            -Dsonar.projectKey=${{ secrets.TEASTORE_SONAR_PROJECT_KEY }}  
+            -Dsonar.java.binaries="
