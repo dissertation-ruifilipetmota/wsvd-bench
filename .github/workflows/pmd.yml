@@ -29,14 +29,16 @@ jobs:
         with:
           java-version: '8'
           distribution: 'zulu'
-      - name: Install Dependencies
-        run: |
-          chmod +x ./install/install.sh
-          ./install/install.sh
+
 
       - name: List jar Directories
         run: |
             find . -type d -name "wsdbench-component.jar" | grep -v "/\." | sed 's|^./||'
+            
+      - name: Install Dependencies
+        run: |
+          chmod +x ./install/install.sh
+          ./install/install.sh
     
       - name: Build project
         run: mvn clean install -Dmaven.test.skip=true
