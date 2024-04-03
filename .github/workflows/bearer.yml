@@ -39,8 +39,10 @@ jobs:
         run: |
             find . -type d -name "install" | grep -v "/\." | sed 's|^./||'
             
-    #  - name: Setup Maven Action
-    #    uses: s4u/setup-maven-action@< version >
+      - name: Setup Maven Action
+        uses: s4u/setup-maven-action@v1.2.1
+        with:
+          java-version: 8
 
       - name: Install Dependencies
         run: |
