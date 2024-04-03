@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: pmd
+name: SonarQube & PMD & SpotBugs
 
 on:
   #push:
@@ -56,6 +56,17 @@ jobs:
         run: |
           find . -type d -name "src" | grep -v "/\." | sed 's|^./||'
           
+
+      - name: Run SpotBugs
+        run: mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs -sarifOutput:true -sarifOutputFilename:spotbugs-report.sarif
+  
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: spotbugs-report.sarif
+
+
+
       - name: Run PMD
         id: pmd
         uses: pmd/pmd-github-action@v2
