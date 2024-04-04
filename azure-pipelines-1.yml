@@ -1,0 +1,27 @@
+trigger:
+- master
+pool:
+  vmImage: 'ubuntu-latest'
+
+container:
+  image: returntocorp/semgrep
+
+jobs:
+- job: SemgrepScan
+  displayName: 'Semgrep Code Scan'
+  
+  steps:
+  - checkout: self
+  
+  - script: |
+      semgrep \
+        --sarif --output semgrep-report.sarif \
+        --metrics=off \
+        --config="p/default"
+    displayName: 'Run Semgrep Scan'
+
+  
+  
+
+
+
