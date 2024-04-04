@@ -38,7 +38,8 @@ steps:
   failOnStderr: false
 
 - script: |
-    mvn --no-transfer-progress spotbugs:check
+    mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
+    # mvn --no-transfer-progress spotbugs:check
   displayName: 'Run SpotBugs analysis'
 
 - script: |
