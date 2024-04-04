@@ -1,0 +1,53 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+  
+variables:
+  java.version: '8'  # Specify the desired Java version
+  #python.version: '3.x'  # Specify the desired Python version
+    
+steps:
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '$(java.version)'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+  displayName: 'Install Java'
+
+- checkout: self
+  lfs: true
+  displayName: 'Self Checkout'
+
+
+
+- script: |
+    ls
+    cd teastore
+    # Build and compile your Wsvd project using Apache Maven
+    mvn clean install -Dmaven.test.skip=true
+    
+  displayName: 'Install and Compile Wsvd with Maven'
+  failOnStderr: false
+
+- script: |
+    mvn --no-transfer-progress spotbugs:check
+  displayName: 'Run SpotBugs analysis'
+
+- script: |
+    # Install PMD
+    #wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.22.0/pmd-bin-6.22.0.zip
+    #unzip pmd-bin-6.22.0.zip
+
+    # Run PMD analysis
+    #./pmd-bin-6.22.0/bin/run.sh pmd -d src/main/java -f text -R rulesets/java/quickstart.xml --failOnViolation false
+    mvn pmd:pmd
+  displayName: 'Run PMD analysis'
+  
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    artifactName: 'pmd-report'
+    targetPath: '$(System.DefaultWorkingDirectory)/target'
+  displayName: 'Publish Pipeline Artifact'
