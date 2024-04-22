@@ -58,9 +58,25 @@ steps:
     artifactName: 'pmd-report'
     targetPath: '$(System.DefaultWorkingDirectory)/target'
   displayName: 'Publish Pipeline Artifact'
-  
-  
 
+
+
+# - task: SonarQubePrepare@5
+#   inputs:
+#     SonarQube: 'SonarQubeConnection'
+#     scannerMode: 'Other'
+
+
+
+# - task: SonarQubePrepare@5
+#   inputs:
+#     SonarQube: 'SonarQubeConnection'
+#     scannerMode: 'MSBuild'
+#     projectKey: 'dissertation-ruifilipetmota_wsvd-bench_aec80f1e-2b42-419f-8634-1b432b2063d9'
+#     projectName: 'WSVD-bench'
+# - task: SonarQubeAnalyze@5
+#   inputs:
+#     jdkversion: 'JAVA_HOME'
 
 
 
