@@ -37,6 +37,7 @@ steps:
   displayName: 'Install and Compile Wsvd with Maven'
   failOnStderr: false
 
+
 - task: SonarQubePrepare@6
   inputs:
     SonarQube: 'SonarQubeConnection'
@@ -45,6 +46,18 @@ steps:
       # Additional properties that will be passed to the scanner, 
       # Put one key=value per line, example:
       sonar.exclusions=**/*.bin
+- task: Maven@4
+  inputs:
+    mavenPomFile: 'pom.xml'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: true
+    sqMavenPluginVersionChoice: 'latest'
+
+
 - task: SonarQubeAnalyze@6
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
