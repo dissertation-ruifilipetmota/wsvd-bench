@@ -6,22 +6,26 @@ pool:
 container:
   image: returntocorp/semgrep
 
-jobs:
-- job: SemgrepScan
-  displayName: 'Semgrep Code Scan'
-  
-  steps:
-  - checkout: self
-  
-  - script: |
-      semgrep \
-        --sarif --output semgrep-report.sarif \
-        --metrics=off \
-        --config="p/default"
-    displayName: 'Run Semgrep Scan'
-
-  
-  
 
 
+steps:
+- checkout: self
+  clean: true
+  fetchDepth: 20
+  persistCredentials: true
 
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+    architecture: 'x64'
+- script: |
+    python -m pip install --upgrade pip
+    pip install semgrep
+    echo "Semgrep OSS full scan"
+    semgrep scan --config auto
+
+  
+- script: |
+    semgrep scan --config auto
+    echo "scan done"
