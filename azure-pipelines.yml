@@ -37,6 +37,20 @@ steps:
   displayName: 'Install and Compile Wsvd with Maven'
   failOnStderr: false
 
+- task: SonarQubePrepare@6
+  inputs:
+    SonarQube: 'SonarQubeConnection'
+    scannerMode: 'Other'
+    extraProperties: |
+      # Additional properties that will be passed to the scanner, 
+      # Put one key=value per line, example:
+      sonar.exclusions=**/*.bin
+- task: SonarQubeAnalyze@6
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+
+
+
 - script: |
     mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
     # mvn --no-transfer-progress spotbugs:check
