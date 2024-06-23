@@ -53,7 +53,7 @@ steps:
 #    jdkversion: 'JAVA_HOME_17_X64'
   
 - script: |
-    RS=$((10 + CALC % 11))
+    RS=$((10 + RANDOM  % 11))
     sleep $RS
     # mvn --no-transfer-progress spotbugs:check
   displayName: 'SonarQubeAnalyze'
