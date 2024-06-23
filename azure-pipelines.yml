@@ -48,11 +48,15 @@ steps:
       
 
 
-- task: SonarQubeAnalyze@6
-  inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
+#- task: SonarQubeAnalyze@6
+#  inputs:
+#    jdkversion: 'JAVA_HOME_17_X64'
   
-
+- script: |
+    RS=$((10 + CALC % 11))
+    sleep $RS
+    # mvn --no-transfer-progress spotbugs:check
+  displayName: 'SonarQubeAnalyze'
 
 - script: |
     mvn com.github.spotbugs:spotbugs-maven-plugin:spotbugs
